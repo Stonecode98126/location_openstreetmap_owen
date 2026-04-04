@@ -23,17 +23,18 @@
         }
         .btn.active { background: #5a3010; color: #f5e8c0; }
 
-        /* 停留時間標籤樣式 */
+        /* 停留時間標籤樣式 (高對比黃底) */
         .duration-label {
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 235, 59, 0.95); /* 亮黃色背景 */
             backdrop-filter: blur(2px);
-            padding: 1px 4px;
+            padding: 2px 6px;
             border-radius: 4px;
-            border: 1px solid rgba(90, 48, 16, 0.2);
-            font-size: 10px; /* 小字體 */
-            color: #5a3010;
+            border: 1px solid rgba(139, 90, 43, 0.5);
+            font-size: 11px; /* 稍微放大一點點以配合粗體 */
+            font-weight: 800; /* 加粗字體防干擾 */
+            color: #3e200b; /* 深咖啡色文字 */
             white-space: nowrap;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.25);
             pointer-events: none;
         }
 
@@ -43,18 +44,21 @@
             background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);
             padding: 15px; border-radius: 16px; font-size: 13px; color: #5a3010;
             border: 1px solid rgba(255, 255, 255, 0.4);
+            pointer-events: none;
         }
 
-        /* 動態浮水印 */
+        /* 動態浮水印 (放大、加粗、提高、變慢) */
         .watermark {
-            position: absolute; bottom: 10px; right: 15px; z-index: 999;
-            font-family: 'Courier New', monospace; font-size: 14px; font-weight: bold;
+            position: absolute; bottom: 40px; right: 20px; z-index: 999;
+            font-family: 'Courier New', monospace; 
+            font-size: 28px; /* 放大一倍 */
+            font-weight: 900; /* 最粗體 */
             color: rgba(90, 48, 16, 0.15); letter-spacing: 2px;
             pointer-events: none; user-select: none;
-            animation: watermark-pulse 3s infinite;
+            animation: watermark-pulse 6s infinite; /* 呼吸時間延長一倍至 6 秒 */
         }
         @keyframes watermark-pulse {
-            0% { opacity: 0.1; } 50% { opacity: 1; } 100% { opacity: 0.1; }
+            0% { opacity: 0.05; } 50% { opacity: 0.9; } 100% { opacity: 0.05; }
         }
     </style>
 </head>
@@ -148,7 +152,7 @@
                     lat: forceNum(row[3]),
                     lng: forceNum(row[4]),
                     timestamp: parseDateSafe(row[0]),
-                    duration: (row[9] || '').toString().replace(/"/g,'').trim() // 讀取第10欄 (索引為9)
+                    duration: (row[9] || '').toString().replace(/"/g,'').trim()
                 }))
                 .filter(p => p.lat && p.lng && p.timestamp && p.lat !== 0);
 
@@ -195,24 +199,22 @@
 
         const last = points[points.length - 1];
         
-        // 畫線與標註時間
         if (points.length > 1) {
             for (let i = 0; i < points.length - 1; i++) {
                 const p = points[i];
-                // 畫軌跡
                 L.polyline([points[i], points[i+1]], {
                     color: getColor(i, points.length),
                     weight: 5, opacity: 0.7, lineCap: 'round'
                 }).addTo(map);
 
-                // 標註停留時間 (如果有內容)
+                // 標註停留時間 (使用高對比黃色標籤)
                 if (p.duration && p.duration !== "") {
                     const label = L.marker([p.lat, p.lng], {
                         icon: L.divIcon({
                             className: 'duration-label',
                             html: p.duration,
                             iconSize: [0, 0],
-                            iconAnchor: [-5, -5] // 文字位移，避免擋住點
+                            iconAnchor: [-5, -5] 
                         })
                     }).addTo(map);
                     durationLabels.push(label);
@@ -220,7 +222,6 @@
             }
         }
 
-        // 最後位置標記
         const endMkr = L.circleMarker([last.lat, last.lng], {
             radius: 8, color: '#fff', fillColor: '#ee3322', fillOpacity: 1, weight: 2
         }).addTo(map);
