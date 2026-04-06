@@ -236,6 +236,7 @@
 
                 if (p.duration && p.duration !== "") {
                     const mins = getMinutes(p.duration);
+                    if (mins < 10) continue; // 不足10分鐘不顯示標籤
                     // 根據時間長度決定樣式
                     const colorClass = mins > 30 ? 'bg-long' : 'bg-normal';
                     const label = L.marker([p.lat, p.lng], {
